@@ -2,6 +2,8 @@ package seedu.address.model.restaurant;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import seedu.address.model.tag.Tag;
 import seedu.address.model.util.Pair;
@@ -29,6 +31,7 @@ public enum PriceCategory {
      * @param symbol   the symbol of the price category
      */
     PriceCategory(int maxValue, String symbol) {
+        assert maxValue >= 0 : "Max value must not be negative.";
         this.maxValue = maxValue;
         this.symbol = symbol;
     }
@@ -64,6 +67,13 @@ public enum PriceCategory {
      * @return the price category
      */
     public static String getPriceCategoryString(double value) {
+        // Pre-condition: Ensure the price is not negative
+        assert value >= 0 : "Price must not be negative.";
+
+        // Log the price value
+        Logger logger = Logger.getLogger("PriceCategory");
+        logger.log(Level.INFO, "Price value: {0}", value);
+
         for (PriceCategory category : PriceCategory.values()) {
             if (value <= category.maxValue) {
                 return category.getSymbol();
@@ -78,13 +88,13 @@ public enum PriceCategory {
      * @param tags the set of tags
      * @return a pair of the price tag and the other tags
      */
-    public static Pair<Tag, Set<Tag>> extractPriceTag(Set<Tag> tags) {
-        Tag priceTag = null;
+    public static Pair<Price, Set<Tag>> extractPriceTag(Set<Tag> tags) {
+        Price priceTag = null;
         Set<Tag> otherTags = new HashSet<>();
 
         for (Tag tag : tags) {
             if (isSymbol(tag.tagName) && priceTag == null) {
-                priceTag = tag;
+                priceTag = new Price(tag);
             } else if (isSymbol(tag.tagName) && priceTag != null) {
                 throw new IllegalArgumentException(MESSAGE_MULTIPLE_PRICE_TAGS);
             } else {
